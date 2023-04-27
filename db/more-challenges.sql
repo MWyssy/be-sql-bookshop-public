@@ -46,7 +46,7 @@ VALUES
 
 \echo '\n\n\n Here is all the reviews for The Hitchhiker''s Guide to the Galaxy:\n'
 
-SELECT books.title, ARRAY_AGG(reviews.review) AS average_review
+SELECT books.title, ARRAY_AGG(reviews.review) AS all_reviews
 FROM reviews
 JOIN books ON books.book_id = reviews.book_id
 WHERE title = 'The Hitchhiker''s Guide to the Galaxy'
@@ -90,4 +90,112 @@ FROM (
     JOIN books ON books.book_id = reviews.book_id
     GROUP BY title) average_review
 WHERE average_review >= 8;
+
+\echo '\n\n'
+
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    user_name VARCHAR(40)
+);
+
+INSERT INTO users
+    (user_name)
+VALUES
+    ('Mike'),
+    ('Eliza'),
+    ('Frank'),
+    ('Rosy'),
+    ('Ruth');
+
+ALTER TABLE reviews
+ADD user_id INTEGER REFERENCES users(user_id);
+
+UPDATE reviews
+SET user_id = 1
+WHERE review_id = 1;
+UPDATE reviews
+SET user_id = 2
+WHERE review_id = 2;
+UPDATE reviews
+SET user_id = 5
+WHERE review_id = 3;
+UPDATE reviews
+SET user_id = 4
+WHERE review_id = 4;
+UPDATE reviews
+SET user_id = 4
+WHERE review_id = 5;
+UPDATE reviews
+SET user_id = 3
+WHERE review_id = 6;
+UPDATE reviews
+SET user_id = 1
+WHERE review_id = 7;
+UPDATE reviews
+SET user_id = 2
+WHERE review_id = 8;
+UPDATE reviews
+SET user_id = 1
+WHERE review_id = 9;
+UPDATE reviews
+SET user_id = 5
+WHERE review_id = 10;
+UPDATE reviews
+SET user_id = 3
+WHERE review_id = 11;
+UPDATE reviews
+SET user_id = 4
+WHERE review_id = 12;
+UPDATE reviews
+SET user_id = 2
+WHERE review_id = 13;
+UPDATE reviews
+SET user_id = 1
+WHERE review_id = 14;
+UPDATE reviews
+SET user_id = 5
+WHERE review_id = 15;
+UPDATE reviews
+SET user_id = 2
+WHERE review_id = 16;
+UPDATE reviews
+SET user_id = 3
+WHERE review_id = 17;
+UPDATE reviews
+SET user_id = 5
+WHERE review_id = 18;
+UPDATE reviews
+SET user_id = 1
+WHERE review_id = 19;
+UPDATE reviews
+SET user_id = 2
+WHERE review_id = 20;
+
+\echo '\n\n These are all of the reviews from Mike:\n'
+
+SELECT user_name, title, review 
+FROM reviews
+JOIN users ON users.user_id = reviews.user_id
+JOIN books ON books.book_id = reviews.book_id
+WHERE user_name = 'Mike';
+
+\echo '\n\n This is the average review score from Mike:\n'
+
+SELECT users.user_name, AVG(reviews.review) AS average_review
+FROM reviews
+JOIN users ON users.user_id = reviews.user_id
+WHERE user_name = 'Mike'
+GROUP BY user_name;
+
+\echo '\n\n Here are the books that Rosy has not yet reviewed:\n'
+
+SELECT title 
+FROM books
+WHERE books.book_id NOT IN (
+    SELECT reviews.book_id
+    FROM reviews
+    JOIN users ON users.user_id = reviews.user_id
+    WHERE user_name = 'Rosy'
+);
+
 
